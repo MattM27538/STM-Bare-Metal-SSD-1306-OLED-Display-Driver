@@ -70,3 +70,79 @@ void setI2CSignalMaximumRiseTime(const uint32_t maximumRiseTime){
 void enableI2C(){
     I2C1->CR1 |= I2C_CR1_PE;
 }
+
+void i2c_writeByte(const uint8_t targetAddress, const uint8_t controllerAddress, const char data){
+	while(i2cBusIsBusy()){
+	}
+
+	startI2CBus();
+
+	while(!(startCommandAcknowledged())){
+	}
+
+    setI2CTargetAddressAndWritebit(targetAddress);
+    
+    while(!(targetAddressAcknowledged())){
+    }
+
+    clearAddressFlag();
+    
+    while(dataRegisterIsNotEmpty()){
+    }
+
+    setI2CControllerAddress(controllerAddress);
+    
+    while(dataRegisterIsNotEmpty()){
+    }
+    
+    insertDataIntoDataRegister(data);
+
+    while(!(dataTransferCompleted())){
+    }
+
+    stopI2CBus();
+}
+
+bool i2cBusIsBusy(){
+    return I2C1->SR2 & I2C_SR2_BUSY;
+}
+
+void startI2CBus(){
+    I2C1->CR1 |= I2C_CR1_START;
+}
+
+bool startCommandAcknowledged(){
+    return I2C1->SR1 & I2C_SR1_SB;
+}
+
+void setI2CTargetAddressAndWritebit(const uint8_t targetAddress){
+    I2C1->DR = targetAddress << 1;
+}
+
+bool targetAddressAcknowledged(){
+    return I2C1->SR1 & I2C_SR1_ADDR;
+}
+
+void clearAddressFlag(){
+    const volatile int statusRegisterValue = I2C1->SR2;
+}
+
+bool dataRegisterIsNotEmpty(){
+    return !(I2C1->SR1 & I2C_SR1_TXE);
+}
+
+void setI2CControllerAddress(const uint8_t controllerAddress){
+    I2C1->DR = controllerAddress;
+}
+
+void insertDataIntoDataRegister(const char data){
+    I2C1->DR = data;
+}
+
+bool dataTransferCompleted(){
+    return I2C1->SR1 & I2C_SR1_BTF;
+}
+
+void stopI2CBus(){
+    I2C1->CR1 |= I2C_CR1_STOP;
+}
