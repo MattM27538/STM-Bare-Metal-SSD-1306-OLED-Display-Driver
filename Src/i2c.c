@@ -146,3 +146,34 @@ bool dataTransferCompleted(){
 void stopI2CBus(){
     I2C1->CR1 |= I2C_CR1_STOP;
 }
+
+void i2cWriteMultipleBytes(const uint8_t targetAddress, const uint8_t controllerAddress, const char* const dataBuffer, const uint8_t dataBufferLength){
+    while(i2cBusIsBusy()){
+    }
+
+    startI2CBus();
+
+    while(!(startCommandAcknowledged())){
+    }
+
+    setI2CTargetAddressAndWritebit(targetAddress);
+
+    while(!(targetAddressAcknowledged())){
+    }
+
+    clearAddressFlag();
+
+    while(dataRegisterIsNotEmpty()){
+    }
+
+    setI2CControllerAddress(controllerAddress);
+
+    while(dataRegisterIsNotEmpty()){
+    }
+
+    for (uint8_t bufferIndex = 0; bufferIndex < dataBufferLength; ++bufferIndex){ 
+        addDataToBuffer(dataBuffer, bufferIndex);
+    }	
+
+    stopI2CBus();
+}

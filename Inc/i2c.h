@@ -29,4 +29,6 @@ void insertDataIntoDataRegister(const char data);
 bool dataTransferCompleted();
 void stopI2CBus();
 
+void i2cWriteMultipleBytes(const uint8_t targetAddress, const uint8_t controllerAddress, const char* const dataBuffer, const uint8_t dataBufferLength);
+
 #endif
